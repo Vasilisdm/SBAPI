@@ -20,10 +20,20 @@ class MockBankDataSource : BankDataSource {
             ?: throw NoSuchElementException("Could not find a bank with account number: $accountNumber")
 
     override fun storeBank(newBank: Bank): Bank {
-        if (banks.any { it.accountNumber == newBank.accountNumber}) {
+        if (banks.any { it.accountNumber == newBank.accountNumber }) {
             throw IllegalArgumentException("Bank with account id ${newBank.accountNumber} already exists.")
         }
         banks.add(newBank)
         return newBank
+    }
+
+    override fun updateBank(updatedBank: Bank): Bank {
+        val currentBank = banks.firstOrNull { it.accountNumber == updatedBank.accountNumber }
+            ?: throw NoSuchElementException("Bank with account id ${updatedBank.accountNumber} doesn't exist.")
+
+        banks.remove(currentBank)
+        banks.add(updatedBank)
+
+        return updatedBank
     }
 }
