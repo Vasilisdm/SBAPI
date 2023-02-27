@@ -79,12 +79,17 @@ class BankControllerTest @Autowired constructor(
             // when
             val newBank = Bank("acc123", 37.100, 10)
 
-            // when/then
-            mockMVC.post("${baseURL}/") {
+            // when
+            val performPost = mockMVC.post("${baseURL}/") {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(newBank)
             }
-                .also { println() }
+
+            // then
+            performPost
+                .also {
+                    println()
+                }
                 .andExpect {
                     status { isCreated() }
                 }
