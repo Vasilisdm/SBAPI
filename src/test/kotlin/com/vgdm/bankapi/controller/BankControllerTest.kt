@@ -80,7 +80,7 @@ class BankControllerTest @Autowired constructor(
             val newBank = Bank("acc123", 37.100, 10)
 
             // when
-            val performPost = mockMVC.post("${baseURL}/") {
+            val performPost = mockMVC.post(baseURL) {
                 contentType = MediaType.APPLICATION_JSON
                 content = objectMapper.writeValueAsString(newBank)
             }
@@ -92,6 +92,29 @@ class BankControllerTest @Autowired constructor(
                 }
                 .andExpect {
                     status { isCreated() }
+                    content { contentType(MediaType.APPLICATION_JSON) }
+                    jsonPath("$.accountNumber") { value(newBank.accountNumber) }
+                }
+        }
+
+        @Test
+        fun `creating bank with the same account should return BAD REQUEST`() {
+            // when
+            val newBank = Bank("1234", 37.100, 10)
+
+            // when
+            val performPost = mockMVC.post(baseURL) {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(newBank)
+            }
+
+            // then
+            performPost
+                .also {
+                    println()
+                }
+                .andExpect {
+                    status { isBadRequest() }
                 }
         }
     }
