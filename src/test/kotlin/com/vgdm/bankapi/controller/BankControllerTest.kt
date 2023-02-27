@@ -1,5 +1,7 @@
 package com.vgdm.bankapi.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.vgdm.bankapi.model.Bank
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -10,18 +12,19 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class BankControllerTest {
-
-    @Autowired
-    lateinit var mockMVC: MockMvc
+class BankControllerTest @Autowired constructor(
+    val mockMVC: MockMvc,
+    val objectMapper: ObjectMapper
+) {
 
     private val baseURL = "/api/banks"
 
     @Nested
-    @DisplayName("getBanks()")
+    @DisplayName("GET /api/banks")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetBanks {
         @Test
@@ -38,7 +41,7 @@ class BankControllerTest {
     }
 
     @Nested
-    @DisplayName("getBanks()")
+    @DisplayName("GET /api/banks/{accountNumber}")
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GetBank {
         @Test
@@ -66,5 +69,27 @@ class BankControllerTest {
                 }
         }
     }
+
+    @Nested
+    @DisplayName("POST /api/banks")
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class PostNewBank {
+        @Test
+        fun `should add the new bank`() {
+            // when
+            val newBank = Bank("acc123", 37.100, 10)
+
+            // when/then
+            mockMVC.post("${baseURL}/") {
+                contentType = MediaType.APPLICATION_JSON
+                content = objectMapper.writeValueAsString(newBank)
+            }
+                .also { println() }
+                .andExpect {
+                    status { isCreated() }
+                }
+        }
+    }
+
 
 }
